@@ -1,7 +1,8 @@
 const morgan = require('morgan')
-const express = require('express')
 const { default: helmet } = require('helmet')
 const compression = require('compression')
+require('dotenv').config()
+const express = require('express')
 
 const app = express()
 

@@ -1,8 +1,9 @@
 'use strict'
 const mongoose = require('mongoose')
+const { db: { host, port, name }} = require('../configs/config.mongodb')
 
 // test connect
-const connectString = `mongodb://127.0.0.1:27017/ecom_tech`
+const connectString = `mongodb://${host}:${port}/${name}`
 
 class Database {
   constructor(){
