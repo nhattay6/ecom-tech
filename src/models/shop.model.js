@@ -22,7 +22,7 @@ var shopSchema = new Schema({
     },
     status:{
         type: String,
-        required: true,
+        // required: true,
     },
     verify:{
       type:String,
