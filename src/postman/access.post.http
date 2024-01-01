@@ -2,6 +2,7 @@
 ### signup
 POST {{url_dev}}/shop/sigup
 Content-Type: application/json
+x-api-key: adfasdfasdfasd
 
 {
   "name": "new SHop1",
