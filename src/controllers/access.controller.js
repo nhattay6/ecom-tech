@@ -3,14 +3,13 @@
 const AccessService = require("../services/access.service")
 class AccessController {
   signUp = async (req, res, next) => {
-    try {
-      console.log('::signUP::', req.body)
+    // try {
       return res.status(201).json(
         await AccessService.signUp(req.body)
       )
-    } catch (error) {
-      next(error)
-    }
+    // } catch (error) {
+    //   next(error)
+    // }
   } 
 }
 
