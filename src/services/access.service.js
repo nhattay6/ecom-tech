@@ -110,16 +110,18 @@ class AccessService {
     const privateKey = crypto.randomBytes(64).toString('hex')
     const publicKey = crypto.randomBytes(64).toString('hex')
     // 4
-    const tokens = await createTokenPair({userId: newShop._id, email}, publicKey, privateKey)
+    const { _id: userId } = foundShop
+    const tokens = await createTokenPair({userId, email}, publicKey, privateKey)
     
-    // await
-    
+    await KeyTokenService.createKeyToken({
+      refreshToken: tokens.refreshToken,
+      privateKey,
+      publicKey
+    })
+
     return {
-      // code: 201,
-      // metadata: {
-        shop: getInfoData({ fields: ['_id', 'name', 'email'], object: foundShop}),
-        tokens
-      // }
+      shop: getInfoData({ fields: ['_id', 'name', 'email'], object: foundShop}),
+      tokens
     }
   }
 }
