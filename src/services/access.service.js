@@ -124,6 +124,10 @@ class AccessService {
       tokens
     }
   }
+
+  static logout = async (keyStore) => {
+    // 15.05
+  }
 }
 
 module.exports = AccessService
