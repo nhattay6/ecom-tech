@@ -18,76 +18,53 @@ const RoleShop = {
 
 class AccessService {
   static signUp =  async ({name, email, password}) => {
-    // try {
-      // step1: check email exists??
-      const holderShop = await shopModel.findOne({ email }).lean() //giống toArray
-      if(holderShop){
-        throw new BadRequestError('Error: Shop already registered!')
-      }
-      const passwordHash = await bycrypt.hash(password, 10)
-      const newShop = await shopModel.create({
-        name, email, password: passwordHash, roles: [RoleShop.SHOP]
-      })
+    // step1: check email exists??
+    const holderShop = await shopModel.findOne({ email }).lean() //giống toArray
+    if(holderShop){
+      throw new BadRequestError('Error: Shop already registered!')
+    }
+    const passwordHash = await bycrypt.hash(password, 10)
+    const newShop = await shopModel.create({
+      name, email, password: passwordHash, roles: [RoleShop.SHOP]
+    })
+    
+    if(newShop){
+      const privateKey = crypto.randomBytes(64).toString('hex')
+      const publicKey = crypto.randomBytes(64).toString('hex')
+
+      // Public key CryptoGraphy Standards!
+      console.log({ privateKey, publicKey }) // save collection keyStore
       
-      if(newShop){
-        // created privateKey[user - sign token], publicKey[server - validate token]
-        
-        // const { privateKey, publicKey } = crypto.generateKeyPairSync('rsa', {
-        //   modulesLength: 4096,
-        //   publicKeyEncoding: {
-        //     type: 'pkcs1',
-        //     format: 'pem'
-        //   },
-        //   privateKeyEncoding: {
-        //     type: 'pkcs1',
-        //     format: 'pem'
-        //   }
-        // })
+      const keyStore = await KeyTokenService.createKeyToken({
+        userId: newShop._id,
+        publicKey,
+        privateKey
+      })
 
-        const privateKey = crypto.randomBytes(64).toString('hex')
-        const publicKey = crypto.randomBytes(64).toString('hex')
-
-        // Public key CryptoGraphy Standards!
-        console.log({ privateKey, publicKey }) // save collection keyStore
-        
-        const keyStore = await KeyTokenService.createKeyToken({
-          userId: newShop._id,
-          publicKey,
-          privateKey
-        })
-
-        if(!keyStore) {
-          return {
-            code: 'xxx',
-            message: 'error'
-          }
-        }
-        
-        // created token pair
-        const tokens = await createTokenPair({userId: newShop._id, email}, publicKey, privateKey)
-        console.log('create token success::', tokens)
-        
+      if(!keyStore) {
         return {
-          code: 201,
-          metadata: {
-            shop: getInfoData({fields: ['_id', 'name', 'email'], object: newShop}),
-            tokens
-          }
+          code: 'xxx',
+          message: 'error'
         }
       }
+      
+      // created token pair
+      const tokens = await createTokenPair({userId: newShop._id, email}, publicKey, privateKey)
+      console.log('create token success::', tokens)
       
       return {
-        code: 200,
-        metadata: null
+        code: 201,
+        metadata: {
+          shop: getInfoData({fields: ['_id', 'name', 'email'], object: newShop}),
+          tokens
+        }
       }
-      
-    // } catch (error) {
-    //   return {
-    //     code: 'xxx',
-    //     message: error.message,
-    //     status: 'error',
-    //   }
-    // }
+    }
+    
+    return {
+      code: 200,
+      metadata: null
+    }
   }
   /**
    * check email in dbs
@@ -129,6 +106,11 @@ class AccessService {
     const delKey = await KeyTokenService.removeKeyById(keyStore.id)
     console.log(delKey)
     return delKey
+  }
+
+  static handleRefreshToken = async ({ keyStore, user, refreshToken }) => {
+    const {userId, email} = user
+    // to do
   }
 }
 
