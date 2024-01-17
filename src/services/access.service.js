@@ -8,6 +8,7 @@ const { createTokenPair } = require("../auth/authUtils")
 const { getInfoData } = require("../untils")
 const { BadRequestError, AuthFailureError } = require("../core/error.response")
 const { findByEmail } = require("./shop.service")
+const keytokenModel = require("../models/keytoken.model")
 
 const RoleShop = {
   SHOP: 'SHOP',
@@ -109,8 +110,16 @@ class AccessService {
   }
 
   static handleRefreshToken = async ({ keyStore, user, refreshToken }) => {
-    const {userId, email} = user
-    // to do
+    // const foundToken = await KeyTokenService.findByRefreshTokenUsed(refreshToken)
+
+    // if(foundToken){
+    //   const { userId, email } = await verifyJWT(refreshToken, foundToken.privateKey)
+
+    //   // delete all token on keyStore
+    //   await KeyTokenService.deleteKeyById(userId)
+    //   throw new ForbiddenError('Something wrong happend !! Pls login')
+    // }
+    // // to do
   }
 }
 
