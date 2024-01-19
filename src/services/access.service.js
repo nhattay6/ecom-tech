@@ -6,7 +6,7 @@ const crypto = require('crypto')
 const KeyTokenService = require("./keyToken.service")
 const { createTokenPair } = require("../auth/authUtils")
 const { getInfoData } = require("../untils")
-const { BadRequestError, AuthFailureError } = require("../core/error.response")
+const { BadRequestError, AuthFailureError, ForbiddenError } = require("../core/error.response")
 const { findByEmail } = require("./shop.service")
 const keytokenModel = require("../models/keytoken.model")
 
@@ -110,16 +110,29 @@ class AccessService {
   }
 
   static handleRefreshToken = async ({ keyStore, user, refreshToken }) => {
-    // const foundToken = await KeyTokenService.findByRefreshTokenUsed(refreshToken)
+    const { email, userId } = user
+    if(keyStore.refreshTokenUsed.includes(refreshToken)){
+      await KeyTokenService.deleteKeyById(userId)
+      throw new ForbiddenError('something wrong happend !! Pls relogin')
+    }
+    if(keyStore.refreshToken !== refreshToken) throw new AuthFailureError('shop not registered')
 
-    // if(foundToken){
-    //   const { userId, email } = await verifyJWT(refreshToken, foundToken.privateKey)
+    const foundShop = await findByEmail({ email })
+    if(!foundShop) throw new AuthFailureError('Shop not registered 2')
+    const tokens = await createTokenPair({ userId, email }, keyStore.publicKey, keyStore.privateKey)
+    await keyStore.update({
+      $set: {
+        refreshToken: tokens.refreshToken
+      },
+      $addToSet: {
+        refreshTokenUsed: refreshToken
+      }
+    })
 
-    //   // delete all token on keyStore
-    //   await KeyTokenService.deleteKeyById(userId)
-    //   throw new ForbiddenError('Something wrong happend !! Pls login')
-    // }
-    // // to do
+    return {
+      user,
+      tokens
+    }
   }
 }
 
