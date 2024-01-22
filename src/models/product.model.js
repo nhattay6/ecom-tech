@@ -63,5 +63,3 @@ module.exports = {
   clothing: model(DOCUMENT_NAME, clothingSchema),
   electronic: model(DOCUMENT_NAME, electronicSchema),
 }
-
-
